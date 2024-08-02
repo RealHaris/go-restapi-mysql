@@ -22,7 +22,7 @@ func initConfig() Config {
 	return Config{
 		Port:      getEnv("PORT", "8080"),
 		DBUser:    getEnv("DB_USER", "root"),
-		DBPass:    getEnv("DB_PASS", "password"),
+		DBPass:    getEnv("DB_PASS", ""),
 		DBAddress: fmt.Sprintf("%s:%s", getEnv("DB_HOST", "localhost"), getEnv("DB_PORT", "3306")),
 		DBName:    getEnv("DB_NAME", "go_backend"),
 		JWTSecret: getEnv("JWT_SECRET", "randomjwtsecret"),

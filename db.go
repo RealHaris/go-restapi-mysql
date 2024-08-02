@@ -22,6 +22,8 @@ func NewMySQLStorage(cfg mysql.Config) *MySQLStorage {
 		log.Fatal(err)
 	}
 
+	// clear terminal before printing
+	log.Println("\033[H\033[2J")
 	log.Println("Connected to MySQL")
 
 	return &MySQLStorage{db: db}

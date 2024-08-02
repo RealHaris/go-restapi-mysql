@@ -1,12 +1,17 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
+
+var errNameRequired = errors.New("name is required")
+var errProjectIDRequired = errors.New("project_id is required")
 
 type TaskService struct {
 	store Store
@@ -36,6 +41,39 @@ func (s *TaskService) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer r.Body.Close() // close the body of the request
+
+	var task *Task
+	err = json.Unmarshal(body, &task) // unmarshal the body of the request into task
+	if err != nil {
+		WriteJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Error unmarshalling task payload"})
+		return
+	}
+
+	if err := validateTaskPayload(task); err != nil {
+		WriteJSON(w, http.StatusBadRequest, ErrorResponse{Error: "Error validating task payload"})
+		return
+	}
+
+	t, err := s.store.CreateTask(task)
+	if err != nil {
+		WriteJSON(w, http.StatusInternalServerError, ErrorResponse{Error: "Error creating task"})
+		return
+	}
+
+	WriteJSON(w, http.StatusCreated, t)
+
+}
+
+func validateTaskPayload(task *Task) error {
+	if task.Name == "" {
+		return errNameRequired
+	}
+
+	if task.ProjectID == 0 {
+		return errProjectIDRequired
+	}
+
+	return nil
 
 }
 
